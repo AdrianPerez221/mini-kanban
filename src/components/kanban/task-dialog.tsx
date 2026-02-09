@@ -25,7 +25,7 @@ const FormSchema = z.object({
   fechaLimite: z.string().optional(), // ISO o vacío
 
   observacionesJavi: z.string().optional(),
-  rubricaScore: z.number().optional(),
+  rubricaScore: z.number().min(0, "Mínimo 0").max(10, "Máximo 10").optional(),
   rubricaComentario: z.string().optional(),
 });
 
@@ -199,7 +199,23 @@ export default function TaskDialog({
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="rubricaScore">Rúbrica (0–10)</Label>
-                  <Input id="rubricaScore" type="number" step="1" {...form.register("rubricaScore", { valueAsNumber: true, setValueAs: (v) => (v === "" ? undefined : Number(v)) })} aria-label="Rúbrica" />
+                  <Input
+                    id="rubricaScore"
+                    type="number"
+                    min={0}
+                    max={10}
+                    step="1"
+                    {...form.register("rubricaScore", {
+                      valueAsNumber: true,
+                      setValueAs: (v) => (v === "" ? undefined : Number(v)),
+                    })}
+                    aria-label="Rúbrica"
+                  />
+                  {form.formState.errors.rubricaScore ? (
+                    <div className="text-xs text-destructive">
+                      {form.formState.errors.rubricaScore.message}
+                    </div>
+                  ) : null}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="rubricaComentario">Comentario</Label>
