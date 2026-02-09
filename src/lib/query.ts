@@ -13,6 +13,14 @@ export type QueryAst = {
   warnings: string[];
 };
 
+
+function normalizeText(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
 export function parseQuery(input: string): QueryAst {
   const raw = input.trim();
   const tokens = raw.length ? raw.split(/\s+/g) : [];
@@ -29,7 +37,7 @@ export function parseQuery(input: string): QueryAst {
     if (tok.startsWith("tag:")) {
       const v = tok.slice(4).trim();
       if (!v) warnings.push(`tag vacío en "${tok}"`);
-      else tags.push(v.toLowerCase());
+      else tags.push(normalizeText(v));
       continue;
     }
     if (tok.startsWith("p:")) {
@@ -62,7 +70,7 @@ export function parseQuery(input: string): QueryAst {
   }
 
   return {
-    text: textParts.join(" ").toLowerCase(),
+    text: normalizeText(textParts.join(" ")),
     tags,
     priority,
     due,
@@ -106,13 +114,14 @@ export function applyQuery(tasks: Task[], ast: QueryAst): Task[] {
 
   return tasks.filter((t) => {
     if (ast.text) {
-      const hay = `${t.titulo ?? ""} ${t.descripcion ?? ""}`.toLowerCase();
+      const hay = normalizeText(`${t.titulo ?? ""} ${t.descripcion ?? ""}`);
       if (!hay.includes(ast.text)) return false;
     }
-
     if (ast.tags.length) {
-      const set = new Set(t.tags.map((x) => x.toLowerCase()));
-      for (const tag of ast.tags) if (!set.has(tag)) return false;
+      const normalizedTags = t.tags.map((x) => normalizeText(x));
+      for (const tag of ast.tags) {
+        if (!normalizedTags.some((tTag) => tTag.includes(tag))) return false;
+      }
     }
 
     if (ast.priority && t.prioridad !== ast.priority) return false;

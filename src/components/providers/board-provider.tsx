@@ -1,8 +1,8 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useMemo, useReducer } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useReducer, useState } from "react";
 import type { AuditAction, AuditEvent, BoardState, Priority, Status, Task } from "@/types";
-import { buildInitialDemoState, loadState, saveState } from "@/lib/storage";
+import { buildInitialDemoState, defaultState, loadState, saveState } from "@/lib/storage";
 import { clamp, nowISO, safeTrim, uuid } from "@/lib/utils";
 
 type TaskInput = {
@@ -242,23 +242,26 @@ function insertAt(arr: string[], id: string, index: number): string[] {
 }
 
 export function BoardProvider({ children }: { children: React.ReactNode }) {
-  const initialState = useMemo(() => {
+  const [state, dispatch] = useReducer(reducer, defaultState());
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
     const loaded = loadState();
-    // si está vacío, metemos demo para que no sea “empty” de inicio (lo puedes borrar)
+    // si est? vac?o, metemos demo para que no sea ?empty? de inicio (lo puedes borrar)
     const isEmpty =
       Object.keys(loaded.tasks).length === 0 &&
       loaded.order.todo.length === 0 &&
       loaded.order.doing.length === 0 &&
       loaded.order.done.length === 0;
 
-    return isEmpty ? buildInitialDemoState() : loaded;
+    dispatch({ type: "INIT", state: isEmpty ? buildInitialDemoState() : loaded });
+    setReady(true);
   }, []);
 
-  const [state, dispatch] = useReducer(reducer, initialState);
-
   useEffect(() => {
+    if (!ready) return;
     saveState(state);
-  }, [state]);
+  }, [state, ready]);
 
   const value = useMemo(() => ({ state, dispatch }), [state]);
 

@@ -6,6 +6,17 @@ import { CSS } from "@dnd-kit/utilities";
 import type { Task } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useBoard } from "@/components/providers/board-provider";
 import MoveMenu from "./move-menu";
 
@@ -113,14 +124,30 @@ export default function TaskCard({ task, onEdit }: { task: Task; onEdit: () => v
       ) : null}
 
       <div className="mt-3 flex justify-end">
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={() => dispatch({ type: "DELETE_TASK", id: task.id })}
-          aria-label="Borrar tarea"
-        >
-          Borrar
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" size="sm" aria-label="Borrar tarea">
+              Borrar
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Borrar tarea?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción no se puede deshacer.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                variant="destructive"
+                onClick={() => dispatch({ type: "DELETE_TASK", id: task.id })}
+              >
+                Borrar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </article>
   );
