@@ -13,7 +13,6 @@ import IntegrityDialog from "./integrity-dialog";
 import GodPanel from "./god-panel";
 import { TaskCardOverlay } from "./task-card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { parseQuery, applyQuery, sortByOrder } from "@/lib/query";
@@ -159,56 +158,31 @@ export default function Board() {
       </div>
 
       {state.settings.godMode ? <GodPanel /> : null}
-
-      <Tabs defaultValue="board">
-        <TabsList>
-          <TabsTrigger value="board">Tablero</TabsTrigger>
-          <TabsTrigger value="help">Ayuda de búsqueda</TabsTrigger>
-        </TabsList>
-
-        <div className="mt-3">
-          {/* board */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <DndContext
-              sensors={sensors}
-              onDragStart={({ active }) => setActiveId(String(active.id))}
-              onDragCancel={() => setActiveId(null)}
-              onDragEnd={onDragEnd}
-            >
-              {(["todo", "doing", "done"] as Status[]).map((status) => {
-                const ids = state.order[status].filter((id) => filteredIds.has(id));
-                return (
-                  <SortableContext key={status} items={ids} strategy={verticalListSortingStrategy}>
-                    <Column
-                      status={status}
-                      tasks={tasksByStatus(status)}
-                      onCreate={() => openCreate(status)}
-                      onEdit={openEdit}
-                    />
-                  </SortableContext>
-                );
-              })}
-              <DragOverlay>
-                {activeTask ? <TaskCardOverlay task={activeTask} /> : null}
-              </DragOverlay>
-            </DndContext>
-          </div>
-
-          {/* help */}
-          <div className="mt-4 rounded-md border p-4 text-sm text-muted-foreground">
-            <div className="space-y-2">
-              <div className="font-medium text-foreground">Ejemplos:</div>
-              <ul className="list-disc pl-5 space-y-1">
-                <li><code>tag:seguridad p:high</code> — alta prioridad con tag seguridad</li>
-                <li><code>PLC due:week</code> — texto “PLC” con vencimiento esta semana</li>
-                <li><code>due:overdue</code> — vencidas</li>
-                <li><code>est:&lt;60</code> — menos de 60 min</li>
-                <li><code>tag:calidad est:&gt;=45</code> — calidad y estimación ≥45</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </Tabs>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <DndContext
+          sensors={sensors}
+          onDragStart={({ active }) => setActiveId(String(active.id))}
+          onDragCancel={() => setActiveId(null)}
+          onDragEnd={onDragEnd}
+        >
+          {(["todo", "doing", "done"] as Status[]).map((status) => {
+            const ids = state.order[status].filter((id) => filteredIds.has(id));
+            return (
+              <SortableContext key={status} items={ids} strategy={verticalListSortingStrategy}>
+                <Column
+                  status={status}
+                  tasks={tasksByStatus(status)}
+                  onCreate={() => openCreate(status)}
+                  onEdit={openEdit}
+                />
+              </SortableContext>
+            );
+          })}
+          <DragOverlay>
+            {activeTask ? <TaskCardOverlay task={activeTask} /> : null}
+          </DragOverlay>
+        </DndContext>
+      </div>
 
       <TaskDialog
         open={modal !== null}
