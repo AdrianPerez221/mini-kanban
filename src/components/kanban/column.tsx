@@ -30,11 +30,13 @@ export default function Column({
   return (
     <section
       ref={setNodeRef}
-      className={`rounded-lg border p-3 space-y-3 ${isOverColumn ? "ring-2 ring-ring relative after:absolute after:inset-0 after:rounded-lg after:bg-muted/40 after:content-[''] after:pointer-events-none" : ""}`}
+      className={`relative overflow-hidden rounded-xl border bg-card p-3 shadow-sm space-y-3 ${isOverColumn ? "ring-2 ring-ring after:absolute after:inset-0 after:rounded-xl after:bg-muted/40 after:content-[''] after:pointer-events-none" : ""}`}
       aria-label={`Columna ${labels[status]}`}
     >
-      <header className="flex items-center justify-between">
-        <div className={isOverColumn ? "font-bold" : "font-semibold"}>{labels[status]}</div>
+      <header className="flex items-center justify-between gap-2 border-b pb-2">
+        <div className={isOverColumn ? "text-sm font-semibold" : "text-sm font-medium text-muted-foreground"}>
+          {labels[status]}
+        </div>
         <Button size="sm" onClick={onCreate} aria-label={`Crear tarea en ${labels[status]}`}>
           + Crear
         </Button>
@@ -48,7 +50,7 @@ export default function Column({
           </div>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {tasks.map((t) => (
             <TaskCard key={t.id} task={t} onEdit={() => onEdit(t.id)} />
           ))}

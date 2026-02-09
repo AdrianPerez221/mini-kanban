@@ -247,7 +247,7 @@ export function BoardProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const loaded = loadState();
-    // si est? vac?o, metemos demo para que no sea ?empty? de inicio (lo puedes borrar)
+    // si está vacío, metemos demo para que no sea "empty" de inicio (lo puedes borrar)
     const isEmpty =
       Object.keys(loaded.tasks).length === 0 &&
       loaded.order.todo.length === 0 &&

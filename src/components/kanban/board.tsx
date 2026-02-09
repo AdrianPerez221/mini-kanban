@@ -120,45 +120,47 @@ export default function Board() {
   const title = "Órdenes de mantenimiento (mini Kanban)";
 
   return (
-    <div className="space-y-4">
-      <header className="flex items-start justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-semibold">{title}</h1>
-          <p className="text-sm text-muted-foreground">
-            Incidencias reales: máquinas, PLC, calibración, seguridad. Persistencia local y auditoría completa.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button variant="outline" asChild>
-            <Link href="/audit">Auditoría</Link>
-          </Button>
-          <Button variant="outline" onClick={handleExport} aria-label="Exportar JSON">
-            Exportar
-          </Button>
-          <Button variant="outline" onClick={openImport} aria-label="Importar JSON">
-            Importar
-          </Button>
-        </div>
-      </header>
-
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <SearchBar value={query} onChange={setQuery} warnings={ast.warnings} />
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={state.settings.godMode}
-              onCheckedChange={(v) => dispatch({ type: "SET_GODMODE", value: v })}
-              aria-label="Activar Modo Dios"
-            />
-            <span className="text-sm">Modo Dios</span>
+    <div className="space-y-5">
+      <div className="rounded-xl border bg-card p-4 shadow-sm">
+        <header className="flex flex-wrap items-start justify-between gap-4">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-semibold">{title}</h1>
+            <p className="text-sm text-muted-foreground">
+              Tablero tipo Trello para organizar órdenes de mantenimiento por estado, con búsqueda avanzada, auditoría de cambios y Modo Dios para revisión y seguimiento.
+            </p>
           </div>
-          <IntegrityDialog />
+
+          <div className="flex items-center gap-2">
+            <Button variant="outline" asChild>
+              <Link href="/audit">Auditoría</Link>
+            </Button>
+            <Button variant="outline" onClick={handleExport} aria-label="Exportar JSON">
+              Exportar
+            </Button>
+            <Button variant="outline" onClick={openImport} aria-label="Importar JSON">
+              Importar
+            </Button>
+          </div>
+        </header>
+
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+          <SearchBar value={query} onChange={setQuery} warnings={ast.warnings} />
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={state.settings.godMode}
+                onCheckedChange={(v) => dispatch({ type: "SET_GODMODE", value: v })}
+                aria-label="Activar Modo Dios"
+              />
+              <span className="text-sm">Modo Dios</span>
+            </div>
+            <IntegrityDialog />
+          </div>
         </div>
       </div>
 
       {state.settings.godMode ? <GodPanel /> : null}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
         <DndContext
           sensors={sensors}
           onDragStart={({ active }) => setActiveId(String(active.id))}

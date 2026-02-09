@@ -59,7 +59,7 @@ export default function TaskCard({ task, onEdit }: { task: Task; onEdit: () => v
     <article
       ref={setNodeRef}
       style={style}
-      className="rounded-md border bg-background p-3 shadow-sm focus-within:ring-2 focus-within:ring-ring"
+      className="rounded-lg border bg-card p-3 shadow-sm transition-shadow hover:shadow-md focus-within:ring-2 focus-within:ring-ring"
       aria-label={`Tarea ${task.titulo}`}
     >
       <div className="flex items-start justify-between gap-2">
@@ -158,7 +158,7 @@ export function TaskCardOverlay({ task }: { task: Task }) {
   const dueLabel = useMemo(() => getDueLabel(task, now), [task, now]);
 
   return (
-    <article className="rounded-md border bg-background p-3 shadow-md">
+    <article className="rounded-lg border bg-card p-3 shadow-md">
       <div className="font-medium leading-snug">{task.titulo}</div>
       {task.descripcion ? (
         <div className="mt-1 text-sm text-muted-foreground line-clamp-2">
