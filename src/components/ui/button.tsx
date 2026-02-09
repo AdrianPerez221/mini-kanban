@@ -49,6 +49,10 @@ function Button({
     asChild?: boolean
   }) {
   const Comp = asChild ? Slot : "button"
+  const title =
+    props.title ??
+    (typeof props["aria-label"] === "string" ? (props["aria-label"] as string) : undefined) ??
+    (typeof props.children === "string" ? props.children : undefined)
 
   return (
     <Comp
@@ -56,6 +60,7 @@ function Button({
       data-variant={variant}
       data-size={size}
       className={cn(buttonVariants({ variant, size, className }))}
+      title={title}
       {...props}
     />
   )
