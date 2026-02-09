@@ -15,6 +15,18 @@ function priorityVariant(p: Task["prioridad"]): "secondary" | "default" | "destr
   return "destructive";
 }
 
+type DueLabel = { text: string; tone: "destructive" | "default" | "secondary" };
+
+function getDueLabel(task: Task, now: number): DueLabel | null {
+  if (!task.fechaLimite) return null;
+  const d = new Date(task.fechaLimite);
+  if (Number.isNaN(d.getTime())) return null;
+  const days = Math.ceil((d.getTime() - now) / (24 * 3600 * 1000));
+  if (days < 0) return { text: `Vencida (${Math.abs(days)}d)`, tone: "destructive" };
+  if (days <= 3) return { text: `Vence en ${days}d`, tone: "default" };
+  return { text: `Vence en ${days}d`, tone: "secondary" };
+}
+
 export default function TaskCard({ task, onEdit }: { task: Task; onEdit: () => void }) {
   const { state, dispatch } = useBoard();
 
@@ -30,15 +42,7 @@ export default function TaskCard({ task, onEdit }: { task: Task; onEdit: () => v
     opacity: isDragging ? 0.6 : 1,
   };
 
-  const dueLabel = useMemo(() => {
-    if (!task.fechaLimite) return null;
-    const d = new Date(task.fechaLimite);
-    if (Number.isNaN(d.getTime())) return null;
-    const days = Math.ceil((d.getTime() - now) / (24 * 3600 * 1000));
-    if (days < 0) return { text: `Vencida (${Math.abs(days)}d)`, tone: "destructive" as const };
-    if (days <= 3) return { text: `Vence en ${days}d`, tone: "default" as const };
-    return { text: `Vence en ${days}d`, tone: "secondary" as const };
-  }, [task.fechaLimite, now]);
+  const dueLabel = useMemo(() => getDueLabel(task, now), [task, now]);
 
   return (
     <article
@@ -118,6 +122,38 @@ export default function TaskCard({ task, onEdit }: { task: Task; onEdit: () => v
           Borrar
         </Button>
       </div>
+    </article>
+  );
+}
+
+export function TaskCardOverlay({ task }: { task: Task }) {
+  const [now] = useState(() => Date.now());
+  const dueLabel = useMemo(() => getDueLabel(task, now), [task, now]);
+
+  return (
+    <article className="rounded-md border bg-background p-3 shadow-md">
+      <div className="font-medium leading-snug">{task.titulo}</div>
+      {task.descripcion ? (
+        <div className="mt-1 text-sm text-muted-foreground line-clamp-2">
+          {task.descripcion}
+        </div>
+      ) : null}
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <Badge variant={priorityVariant(task.prioridad)}>{task.prioridad}</Badge>
+        <Badge variant="outline">{task.estimacionMin} min</Badge>
+        {dueLabel ? <Badge variant={dueLabel.tone}>{dueLabel.text}</Badge> : null}
+      </div>
+
+      {task.tags.length ? (
+        <div className="mt-2 flex flex-wrap gap-1">
+          {task.tags.slice(0, 6).map((t) => (
+            <Badge key={t} variant="secondary">
+              #{t}
+            </Badge>
+          ))}
+        </div>
+      ) : null}
     </article>
   );
 }

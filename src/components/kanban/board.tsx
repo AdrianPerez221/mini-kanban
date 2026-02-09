@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, DragOverlay, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useMemo, useState } from "react";
 import type { Status, Task } from "@/types";
@@ -11,6 +11,7 @@ import TaskDialog from "./task-dialog";
 import SearchBar from "./search-bar";
 import IntegrityDialog from "./integrity-dialog";
 import GodPanel from "./god-panel";
+import { TaskCardOverlay } from "./task-card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
@@ -26,9 +27,11 @@ export default function Board() {
   const { state, dispatch } = useBoard();
   const [modal, setModal] = useState<ActiveModal>(null);
   const [query, setQuery] = useState("");
+  const [activeId, setActiveId] = useState<string | null>(null);
   const ast = useMemo(() => parseQuery(query), [query]);
   const allTasks = useMemo(() => Object.values(state.tasks), [state.tasks]);
   const filteredIds = useMemo(() => new Set(applyQuery(allTasks, ast).map((t) => t.id)), [allTasks, ast]);
+  const activeTask = activeId ? state.tasks[activeId] : null;
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
@@ -38,6 +41,7 @@ export default function Board() {
   };
 
   const onDragEnd = (e: DragEndEvent) => {
+    setActiveId(null);
     const activeId = String(e.active.id);
     const overId = e.over?.id ? String(e.over.id) : null;
 
@@ -165,7 +169,12 @@ export default function Board() {
         <div className="mt-3">
           {/* board */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <DndContext sensors={sensors} onDragEnd={onDragEnd}>
+            <DndContext
+              sensors={sensors}
+              onDragStart={({ active }) => setActiveId(String(active.id))}
+              onDragCancel={() => setActiveId(null)}
+              onDragEnd={onDragEnd}
+            >
               {(["todo", "doing", "done"] as Status[]).map((status) => {
                 const ids = state.order[status].filter((id) => filteredIds.has(id));
                 return (
@@ -179,6 +188,9 @@ export default function Board() {
                   </SortableContext>
                 );
               })}
+              <DragOverlay>
+                {activeTask ? <TaskCardOverlay task={activeTask} /> : null}
+              </DragOverlay>
             </DndContext>
           </div>
 
