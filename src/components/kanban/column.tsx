@@ -6,7 +6,7 @@ import TaskCard from "./task-card";
 import { Button } from "@/components/ui/button";
 
 const labels: Record<Status, string> = {
-  todo: "Todo",
+  todo: "To do",
   doing: "Doing",
   done: "Done",
 };

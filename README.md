@@ -15,4 +15,4 @@ Tablero tipo Trello para organizar órdenes de mantenimiento por estado, con bú
 ![Modo Dios](public/mododios.png)
 
 ## Vercel
-Vercel: `PEGAR_AQUI_TU_ENLACE`
+Vercel: `mini-kanban-jet.vercel.app`
