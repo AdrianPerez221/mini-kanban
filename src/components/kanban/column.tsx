@@ -1,6 +1,6 @@
 "use client";
 
-import { useDroppable } from "@dnd-kit/core";
+import { useDndContext, useDroppable } from "@dnd-kit/core";
 import type { Status, Task } from "@/types";
 import TaskCard from "./task-card";
 import { Button } from "@/components/ui/button";
@@ -23,15 +23,18 @@ export default function Column({
   onEdit: (id: string) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: `col:${status}` });
+  const { over } = useDndContext();
+  const overId = over?.id ? String(over.id) : null;
+  const isOverColumn = isOver || (overId ? tasks.some((t) => t.id === overId) : false);
 
   return (
     <section
       ref={setNodeRef}
-      className={`rounded-lg border p-3 space-y-3 ${isOver ? "ring-2 ring-ring" : ""}`}
+      className={`rounded-lg border p-3 space-y-3 ${isOverColumn ? "ring-2 ring-ring relative after:absolute after:inset-0 after:rounded-lg after:bg-muted/40 after:content-[''] after:pointer-events-none" : ""}`}
       aria-label={`Columna ${labels[status]}`}
     >
       <header className="flex items-center justify-between">
-        <div className="font-semibold">{labels[status]}</div>
+        <div className={isOverColumn ? "font-bold" : "font-semibold"}>{labels[status]}</div>
         <Button size="sm" onClick={onCreate} aria-label={`Crear tarea en ${labels[status]}`}>
           + Crear
         </Button>
